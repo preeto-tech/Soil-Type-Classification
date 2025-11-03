@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Soil Type Classifier</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        .container { max-width: 640px; margin: 0 auto; }
+        .card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; }
+        .row { margin-bottom: 12px; }
+        #preview { width: 224px; height: 224px; object-fit: cover; border: 1px solid #ddd; border-radius: 6px; }
+        button { padding: 10px 16px; border: none; background: #2563eb; color: white; border-radius: 6px; cursor: pointer; }
+        button:disabled { background: #9ca3af; cursor: not-allowed; }
+        .result { margin-top: 12px; font-size: 16px; }
+        .muted { color: #6b7280; font-size: 13px; }
+    </style>
+    <script>
+        function onFileChange(event) {
+            const file = event.target.files[0];
+            const img = document.getElementById('preview');
+            const submitBtn = document.getElementById('submitBtn');
+            document.getElementById('result').textContent = '';
+            if (file) {
+                img.src = URL.createObjectURL(file);
+                submitBtn.disabled = false;
+            } else {
+                img.src = '';
+                submitBtn.disabled = true;
+            }
+        }
+
+        async function onSubmit(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById('file');
+            const result = document.getElementById('result');
+            const btn = document.getElementById('submitBtn');
+            if (!fileInput.files.length) return;
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            btn.disabled = true;
+            result.textContent = 'Predicting...';
+
+            try {
+                const res = await fetch('/predict', { method: 'POST', body: formData });
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.error || 'Prediction failed');
+                }
+                result.textContent = `Prediction: ${data.predicted_label} (confidence: ${(data.confidence * 100).toFixed(2)}%)`;
+            } catch (err) {
+                result.textContent = `Error: ${err.message}`;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+    </script>
+    </head>
+<body>
+    <div class="container">
+        <h2>Soil Type Classifier</h2>
+        <p class="muted">Upload an image (JPG/PNG). The model will predict one of: Black, Cinder, Laterite, Peat, Yellow.</p>
+        <div class="card">
+            <form onsubmit="onSubmit(event)">
+                <div class="row">
+                    <input id="file" type="file" accept="image/*" onchange="onFileChange(event)" />
+                </div>
+                <div class="row">
+                    <img id="preview" alt="Preview will appear here" />
+                </div>
+                <div class="row">
+                    <button id="submitBtn" type="submit" disabled>Predict</button>
+                </div>
+            </form>
+            <div id="result" class="result"></div>
+        </div>
+    </div>
+</body>
+</html>
+
+

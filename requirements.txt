@@ -1,0 +1,11 @@
+flask>=3.0.0
+flask-cors>=5.0.0
+tensorflow==2.16.1
+tensorflow-hub==0.16.1
+tf-keras==2.16.0
+numpy==1.26.4
+Pillow>=9.5.0
+opencv-python-headless>=4.8.0
+pandas>=2.2.2
+scikit-learn>=1.2.2
+google-genai>=1.47.0
