@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Upload, Image as ImageIcon, Loader2, Check, X } from "lucide-react"
 import { Button } from "./ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card"
+import { useLanguage } from "../context/LanguageContext"
 import axios from "axios"
 
 interface PredictionResult {
@@ -12,12 +13,24 @@ interface PredictionResult {
 }
 
 export function SoilTypeClassifier() {
+  const { t } = useLanguage()
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<PredictionResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  
+  const getSoilTypeTranslation = (soilType: string) => {
+    const translations: Record<string, string> = {
+      "Black Soil": t("blackSoil"),
+      "Cinder Soil": t("cinderSoil"),
+      "Laterite Soil": t("lateriteSoil"),
+      "Peat Soil": t("peatSoil"),
+      "Yellow Soil": t("yellowSoil"),
+    }
+    return translations[soilType] || soilType
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
@@ -97,10 +110,10 @@ export function SoilTypeClassifier() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <ImageIcon className="h-6 w-6 text-primary" />
-          Soil Type Classifier
+          {t("soilTypeClassification")}
         </CardTitle>
         <CardDescription>
-          Upload an image of soil to identify its type
+          {t("uploadImage")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -124,7 +137,7 @@ export function SoilTypeClassifier() {
             >
               <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
               <p className="text-sm text-muted-foreground mb-2">
-                Click to upload or drag and drop
+                {t("dragDrop")}
               </p>
               <p className="text-xs text-muted-foreground">
                 PNG, JPG, JPEG up to 10MB
@@ -156,10 +169,10 @@ export function SoilTypeClassifier() {
                   {loading ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Analyzing...
+                      {t("analyzing") || "Analyzing..."}
                     </>
                   ) : (
-                    "Classify Soil Type"
+                    t("classifyButton")
                   )}
                 </Button>
                 <Button
@@ -168,7 +181,7 @@ export function SoilTypeClassifier() {
                   size="lg"
                 >
                   <X className="h-4 w-4" />
-                  Clear
+                  {t("clear") || "Clear"}
                 </Button>
               </div>
             </motion.div>
@@ -185,15 +198,15 @@ export function SoilTypeClassifier() {
             >
               <div className={`p-6 rounded-lg ${getSoilTypeColor(result.predicted_label)}`}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium opacity-90">Detected Soil Type</span>
+                  <span className="text-sm font-medium opacity-90">{t("predictedLabel")}</span>
                   <Check className="h-5 w-5" />
                 </div>
-                <h3 className="text-3xl font-bold">{result.predicted_label}</h3>
+                <h3 className="text-3xl font-bold">{getSoilTypeTranslation(result.predicted_label)}</h3>
               </div>
 
               <div className="p-4 bg-muted rounded-lg">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Confidence</span>
+                  <span className="text-sm font-medium">{t("confidence")}</span>
                   <span className={`text-2xl font-bold ${getConfidenceColor(result.confidence)}`}>
                     {(result.confidence * 100).toFixed(1)}%
                   </span>

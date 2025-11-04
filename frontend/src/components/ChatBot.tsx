@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/
 import { Input } from "./ui/input"
 import { ScrollArea } from "./ui/scroll-area"
 import { FertilityResultCard } from "./FertilityResultCard"
+import { useLanguage } from "../context/LanguageContext"
 import axios from "axios"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -24,6 +25,7 @@ interface Message {
 }
 
 export function ChatBot() {
+  const { t, language } = useLanguage()
   const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState("")
   const [sessionId, setSessionId] = useState<string | null>(null)
@@ -54,7 +56,7 @@ export function ChatBot() {
       // Add welcome message
       setMessages([{
         role: "assistant",
-        content: "Hello! I'm your AI farming assistant. I can help you with soil analysis, crop recommendations, and answer any agricultural questions you have. How can I help you today?"
+        content: t("welcomeMessage")
       }])
     } catch (err) {
       console.error("Failed to initialize chat session:", err)
@@ -109,6 +111,7 @@ export function ChatBot() {
         const formData = new FormData()
         formData.append("session_id", sessionId)
         formData.append("message", userMessage)
+        formData.append("language", language)
         formData.append("image", selectedImage)
 
         response = await axios.post("/chat/message", formData, {
@@ -120,7 +123,8 @@ export function ChatBot() {
         // Send text only
         response = await axios.post("/chat/message", {
           session_id: sessionId,
-          message: userMessage
+          message: userMessage,
+          language: language
         })
       }
 
@@ -170,7 +174,7 @@ export function ChatBot() {
       await axios.delete(`/chat/clear/${sessionId}`)
       setMessages([{
         role: "assistant",
-        content: "Chat cleared. How can I help you?"
+        content: t("welcomeMessage")
       }])
       setError(null)
     } catch (err) {
@@ -212,17 +216,17 @@ export function ChatBot() {
       <CardHeader className="border-b">
         <CardTitle className="flex items-center gap-2">
           <MessageCircle className="h-6 w-6 text-primary" />
-          AI Farming Assistant
+          {t("chatTitle")}
         </CardTitle>
         <CardDescription>
-          Ask me anything about soil, crops, or farming
+          {t("chatDescription")}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
         {/* Quick Actions */}
         {messages.length <= 1 && (
           <div className="p-4 border-b bg-gray-50">
-            <p className="text-xs text-gray-600 mb-2">Quick Actions:</p>
+            <p className="text-xs text-gray-600 mb-2">{t("quickActions")}:</p>
             <Button
               variant="outline"
               size="sm"
@@ -234,7 +238,7 @@ export function ChatBot() {
               className="w-full text-xs"
             >
               <Sparkles className="h-3 w-3 mr-2" />
-              Analyze Sample Fertility Data
+              {t("analyzeSampleData")}
             </Button>
           </div>
         )}
@@ -369,14 +373,14 @@ export function ChatBot() {
               size="icon"
               onClick={() => fileInputRef.current?.click()}
               disabled={loading || !sessionId}
-              title="Upload image"
+              title={t("uploadImageButton")}
             >
               <ImageIcon className="h-4 w-4" />
             </Button>
             <Input
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Ask about soil or upload an image..."
+              placeholder={t("placeholder")}
               disabled={loading || !sessionId}
               className="flex-1"
             />
@@ -397,7 +401,7 @@ export function ChatBot() {
               size="icon"
               onClick={handleClearChat}
               disabled={messages.length <= 1 || loading}
-              title="Clear chat"
+              title={t("clearChat")}
             >
               <Trash2 className="h-4 w-4" />
             </Button>

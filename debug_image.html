@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Image Text Extraction</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .upload-area { border: 2px dashed #ccc; padding: 40px; text-align: center; margin: 20px 0; }
+        .result { background: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        .error { background: #ffe6e6; color: #d00; }
+        .success { background: #e6ffe6; color: #060; }
+        button { background: #007cba; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        pre { white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Image Text Extraction</h1>
+    <p>Upload your soil lab report image to see what text the AI can extract from it.</p>
+    
+    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+        <p>Click here to select an image file</p>
+        <input type="file" id="fileInput" accept="image/*" style="display: none;">
+    </div>
+    
+    <div id="preview"></div>
+    
+    <button id="extractBtn" onclick="extractText()" disabled>Extract All Text</button>
+    <button id="extractNutrientsBtn" onclick="extractNutrients()" disabled>Extract Nutrients</button>
+    
+    <div id="result"></div>
+
+    <script>
+        let selectedFile = null;
+
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                selectedFile = file;
+                
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('preview').innerHTML = 
+                        `<h3>Selected Image:</h3><img src="${e.target.result}" style="max-width: 100%; max-height: 300px;">`;
+                };
+                reader.readAsDataURL(file);
+                
+                // Enable buttons
+                document.getElementById('extractBtn').disabled = false;
+                document.getElementById('extractNutrientsBtn').disabled = false;
+            }
+        });
+
+        async function extractText() {
+            if (!selectedFile) return;
+            
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            
+            document.getElementById('result').innerHTML = '<p>Extracting text...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:5000/debug-image-text', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'Success') {
+                    document.getElementById('result').innerHTML = 
+                        `<div class="result success">
+                            <h3>✅ Extracted Text:</h3>
+                            <pre>${data.extracted_text}</pre>
+                        </div>`;
+                } else {
+                    document.getElementById('result').innerHTML = 
+                        `<div class="result error">
+                            <h3>❌ Error:</h3>
+                            <p>${data.message}</p>
+                        </div>`;
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = 
+                    `<div class="result error">
+                        <h3>❌ Network Error:</h3>
+                        <p>${error.message}</p>
+                    </div>`;
+            }
+        }
+
+        async function extractNutrients() {
+            if (!selectedFile) return;
+            
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('language', 'en');
+            
+            document.getElementById('result').innerHTML = '<p>Extracting nutrients...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:5000/extract-nutrients', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'Success') {
+                    document.getElementById('result').innerHTML = 
+                        `<div class="result success">
+                            <h3>✅ Extracted Nutrients:</h3>
+                            <pre>${JSON.stringify(data.nutrients, null, 2)}</pre>
+                            <p><strong>Message:</strong> ${data.message}</p>
+                        </div>`;
+                } else {
+                    document.getElementById('result').innerHTML = 
+                        `<div class="result error">
+                            <h3>❌ Error:</h3>
+                            <p>${data.message}</p>
+                        </div>`;
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = 
+                    `<div class="result error">
+                        <h3>❌ Network Error:</h3>
+                        <p>${error.message}</p>
+                    </div>`;
+            }
+        }
+    </script>
+</body>
+</html>

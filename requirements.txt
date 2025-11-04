@@ -9,3 +9,4 @@ opencv-python-headless>=4.8.0
 pandas>=2.2.2
 scikit-learn>=1.2.2
 google-genai>=1.47.0
+python-dotenv>=1.0.0

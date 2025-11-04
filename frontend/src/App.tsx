@@ -1,13 +1,15 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Leaf, Github, Info, MessageCircle } from "lucide-react"
+import { Leaf, Github, Info, MessageCircle, Languages } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs"
 import { SoilTypeClassifier } from "./components/SoilTypeClassifier"
 import { SoilFertilityAnalyzer } from "./components/SoilFertilityAnalyzer"
 import { ChatBot } from "./components/ChatBot"
+import { useLanguage } from "./context/LanguageContext"
 
 function App() {
   const [activeTab, setActiveTab] = useState("classifier")
+  const { t, language, setLanguage } = useLanguage()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
@@ -24,8 +26,8 @@ function App() {
                 <Leaf className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">AgriSoil Intelligence</h1>
-                <p className="text-sm text-gray-600">Advanced Soil Analysis Platform</p>
+                <h1 className="text-2xl font-bold text-gray-900">{t("appTitle")}</h1>
+                <p className="text-sm text-gray-600">{t("appSubtitle")}</p>
               </div>
             </motion.div>
 
@@ -34,6 +36,16 @@ function App() {
               animate={{ opacity: 1, x: 0 }}
               className="flex items-center gap-4"
             >
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setLanguage(language === "en" ? "hi" : "en")}
+                  className="text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2 px-3 py-1 rounded-md hover:bg-gray-100"
+                  title={t("selectLanguage")}
+                >
+                  <Languages className="h-5 w-5" />
+                  <span className="text-sm font-medium">{language === "en" ? "हिंदी" : "English"}</span>
+                </button>
+              </div>
               <a
                 href="https://github.com"
                 target="_blank"
@@ -56,11 +68,10 @@ function App() {
           className="mb-8 text-center"
         >
           <h2 className="text-3xl font-bold text-gray-900 mb-3">
-            Empowering Farmers with AI-Driven Insights
+            {t("tagline")}
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Use cutting-edge machine learning to analyze your soil. Get instant soil type
-            classification and fertility assessments to make informed agricultural decisions.
+            {t("description")}
           </p>
         </motion.div>
 
@@ -72,14 +83,14 @@ function App() {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="max-w-5xl mx-auto">
             <TabsList className="grid w-full grid-cols-3 mb-8">
               <TabsTrigger value="classifier" className="text-base">
-                Soil Type Classification
+                {t("soilTypeClassification")}
               </TabsTrigger>
               <TabsTrigger value="fertility" className="text-base">
-                Fertility Analysis
+                {t("fertilityAnalysis")}
               </TabsTrigger>
               <TabsTrigger value="chat" className="text-base flex items-center gap-2">
                 <MessageCircle className="h-4 w-4" />
-                AI Assistant
+                {t("aiAssistant")}
               </TabsTrigger>
             </TabsList>
 
@@ -128,10 +139,10 @@ function App() {
                 <div className="p-2 bg-blue-100 rounded-lg">
                   <Info className="h-5 w-5 text-blue-600" />
                 </div>
-                <h3 className="font-semibold text-gray-900">Accurate Analysis</h3>
+                <h3 className="font-semibold text-gray-900">{t("accurateAnalysis")}</h3>
               </div>
               <p className="text-sm text-gray-600">
-                Our AI models are trained on thousands of soil samples to provide highly accurate predictions
+                {t("accurateAnalysisDesc")}
               </p>
             </div>
 
@@ -140,10 +151,10 @@ function App() {
                 <div className="p-2 bg-green-100 rounded-lg">
                   <Leaf className="h-5 w-5 text-green-600" />
                 </div>
-                <h3 className="font-semibold text-gray-900">Instant Results</h3>
+                <h3 className="font-semibold text-gray-900">{t("instantResults")}</h3>
               </div>
               <p className="text-sm text-gray-600">
-                Get immediate insights about your soil to make quick, data-driven farming decisions
+                {t("instantResultsDesc")}
               </p>
             </div>
 
@@ -152,10 +163,10 @@ function App() {
                 <div className="p-2 bg-purple-100 rounded-lg">
                   <Leaf className="h-5 w-5 text-purple-600" />
                 </div>
-                <h3 className="font-semibold text-gray-900">Easy to Use</h3>
+                <h3 className="font-semibold text-gray-900">{t("easyToUse")}</h3>
               </div>
               <p className="text-sm text-gray-600">
-                Simple interface designed for farmers - no technical expertise required
+                {t("easyToUseDesc")}
               </p>
             </div>
           </div>
@@ -166,8 +177,8 @@ function App() {
       <footer className="mt-16 border-t bg-white">
         <div className="container mx-auto px-4 py-6">
           <div className="text-center text-sm text-gray-600">
-            <p>Built with care for farmers worldwide. Powered by Machine Learning.</p>
-            <p className="mt-1">© 2025 AgriSoil Intelligence. All rights reserved.</p>
+            <p>{t("footerText")}</p>
+            <p className="mt-1">{t("copyright")}</p>
           </div>
         </div>
       </footer>

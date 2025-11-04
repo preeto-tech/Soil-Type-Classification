@@ -14,6 +14,8 @@ export default defineConfig({
     proxy: {
       '/predict-type': 'http://localhost:5000',
       '/predict-fertility': 'http://localhost:5000',
+      '/extract-nutrients': 'http://localhost:5000',
+      '/debug-image-text': 'http://localhost:5000',
       '/health': 'http://localhost:5000',
       '/chat': {
         target: 'http://localhost:5000',
